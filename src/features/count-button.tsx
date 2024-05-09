@@ -1,11 +1,25 @@
 import { useReducer } from "react"
 
+import { sendToBackground } from "@plasmohq/messaging"
+
 export const CountButton = () => {
   const [count, increase] = useReducer((c) => c + 1, 0)
+  const handleOnClick = async () => {
+    increase()
+    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+      console.log("current tab id")
+      const resp = await sendToBackground({
+        name: "ping",
+        body: { id: 123 },
+        tabId: tabs[0].id
+      })
+      console.log(resp)
+    })
+  }
 
   return (
     <button
-      onClick={() => increase()}
+      onClick={handleOnClick}
       type="button"
       className="plasmo-flex plasmo-flex-row plasmo-items-center plasmo-px-4 plasmo-py-2 plasmo-text-sm plasmo-rounded-lg plasmo-transition-all plasmo-border-none
       plasmo-shadow-lg hover:plasmo-shadow-md
